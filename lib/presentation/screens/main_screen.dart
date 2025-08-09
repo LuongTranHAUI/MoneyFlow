@@ -5,10 +5,11 @@ import 'package:finance_tracker/presentation/screens/dashboard_screen.dart';
 import 'package:finance_tracker/presentation/screens/transaction_screen.dart';
 import 'package:finance_tracker/presentation/screens/planning_screen.dart';
 import 'package:finance_tracker/presentation/screens/more_screen.dart';
-import 'package:finance_tracker/presentation/widgets/add_transaction_bottom_sheet.dart';
+import 'package:finance_tracker/presentation/widgets/add_edit_transaction_bottom_sheet.dart';
 import '../../core/utils/auth_debug.dart';
 
 final currentIndexProvider = StateProvider<int>((ref) => 0);
+final planningTabIndexProvider = StateProvider<int>((ref) => 0);
 
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
@@ -42,11 +43,17 @@ class MainScreen extends ConsumerWidget {
             ),
           );
         },
-        child: _getScreenForIndex(currentIndex),
+        child: _getScreenForIndex(currentIndex, ref),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,
-        onDestinationSelected: (index) => ref.read(currentIndexProvider.notifier).state = index,
+        onDestinationSelected: (index) {
+          ref.read(currentIndexProvider.notifier).state = index;
+          // Reset planning tab index when leaving planning screen
+          if (index != 2) {
+            ref.read(planningTabIndexProvider.notifier).state = 0;
+          }
+        },
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.dashboard_outlined),
@@ -81,7 +88,7 @@ class MainScreen extends ConsumerWidget {
     );
   }
 
-  Widget _getScreenForIndex(int index) {
+  Widget _getScreenForIndex(int index, WidgetRef ref) {
     // Add key to ensure AnimatedSwitcher recognizes different screens
     switch (index) {
       case 0:
@@ -89,7 +96,11 @@ class MainScreen extends ConsumerWidget {
       case 1:
         return const TransactionScreen(key: ValueKey('transaction'));
       case 2:
-        return const PlanningScreen(key: ValueKey('planning'));
+        final tabIndex = ref.watch(planningTabIndexProvider);
+        return PlanningScreen(
+          key: const ValueKey('planning'),
+          initialTabIndex: tabIndex,
+        );
       case 3:
         return const MoreScreen(key: ValueKey('more'));
       default:
@@ -102,7 +113,7 @@ class MainScreen extends ConsumerWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const AddTransactionBottomSheet(),
+      builder: (context) => const AddEditTransactionBottomSheet(),
     );
   }
 }

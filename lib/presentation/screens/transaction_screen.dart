@@ -4,6 +4,7 @@ import 'package:finance_tracker/core/utils/date_formatter.dart';
 import 'package:finance_tracker/domain/entities/transaction.dart';
 import 'package:finance_tracker/presentation/providers/transaction_provider.dart';
 import 'package:finance_tracker/presentation/widgets/common/bottom_sheet_base.dart';
+import 'package:finance_tracker/presentation/widgets/add_edit_transaction_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -458,10 +459,12 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen>
   }
 
   void _editTransaction(Transaction transaction) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Chức năng chỉnh sửa đang phát triển'),
-        duration: Duration(seconds: 2),
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddEditTransactionBottomSheet(
+        transaction: transaction,
       ),
     );
   }

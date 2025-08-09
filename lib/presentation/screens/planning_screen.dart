@@ -5,7 +5,12 @@ import 'goal_screen.dart';
 import 'investment_screen.dart';
 
 class PlanningScreen extends ConsumerStatefulWidget {
-  const PlanningScreen({super.key});
+  final int initialTabIndex;
+  
+  const PlanningScreen({
+    super.key,
+    this.initialTabIndex = 0,
+  });
 
   @override
   ConsumerState<PlanningScreen> createState() => _PlanningScreenState();
@@ -18,7 +23,11 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(
+      length: 3, 
+      vsync: this,
+      initialIndex: widget.initialTabIndex,
+    );
   }
 
   @override

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import '../providers/investment_provider.dart';
 import '../../core/utils/currency_formatter.dart';
-import '../widgets/add_investment_bottom_sheet.dart';
+import '../widgets/add_edit_investment_bottom_sheet.dart';
 
 class InvestmentScreen extends ConsumerWidget {
   const InvestmentScreen({super.key});
@@ -67,7 +68,8 @@ class InvestmentScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPortfolioOverview(BuildContext context, WidgetRef ref, InvestmentState state) {
+  Widget _buildPortfolioOverview(
+      BuildContext context, WidgetRef ref, InvestmentState state) {
     final notifier = ref.read(investmentProvider.notifier);
     final totalValue = notifier.totalPortfolioValue;
     final totalInvested = notifier.totalInvestedAmount;
@@ -82,7 +84,10 @@ class InvestmentScreen extends ConsumerWidget {
           colors: isDarkMode
               ? [
                   Theme.of(context).colorScheme.primaryContainer,
-                  Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.8),
+                  Theme.of(context)
+                      .colorScheme
+                      .primaryContainer
+                      .withValues(alpha: 0.8),
                 ]
               : [
                   Theme.of(context).primaryColor,
@@ -107,8 +112,14 @@ class InvestmentScreen extends ConsumerWidget {
             'Tổng giá trị danh mục',
             style: TextStyle(
               color: isDarkMode
-                  ? Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.8)
-                  : Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.8),
+                  ? Theme.of(context)
+                      .colorScheme
+                      .onPrimaryContainer
+                      .withValues(alpha: 0.8)
+                  : Theme.of(context)
+                      .colorScheme
+                      .onPrimary
+                      .withValues(alpha: 0.8),
               fontSize: 14,
             ),
           ),
@@ -158,15 +169,21 @@ class InvestmentScreen extends ConsumerWidget {
     bool isPercentage = false,
   }) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: isDarkMode
-                ? Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.2)
-                : Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.2),
+                ? Theme.of(context)
+                    .colorScheme
+                    .onPrimaryContainer
+                    .withValues(alpha: 0.2)
+                : Theme.of(context)
+                    .colorScheme
+                    .onPrimary
+                    .withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -185,15 +202,21 @@ class InvestmentScreen extends ConsumerWidget {
               label,
               style: TextStyle(
                 color: isDarkMode
-                    ? Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.8)
-                    : Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.8),
+                    ? Theme.of(context)
+                        .colorScheme
+                        .onPrimaryContainer
+                        .withValues(alpha: 0.8)
+                    : Theme.of(context)
+                        .colorScheme
+                        .onPrimary
+                        .withValues(alpha: 0.8),
                 fontSize: 12,
               ),
             ),
             Text(
-              isPercentage 
-                ? '${amount.toStringAsFixed(1)}%'
-                : CurrencyFormatter.formatCompact(amount),
+              isPercentage
+                  ? '${amount.toStringAsFixed(1)}%'
+                  : CurrencyFormatter.formatCompact(amount),
               style: TextStyle(
                 color: isDarkMode
                     ? Theme.of(context).colorScheme.onPrimaryContainer
@@ -210,7 +233,7 @@ class InvestmentScreen extends ConsumerWidget {
 
   Widget _buildAssetAllocation(BuildContext context, InvestmentState state) {
     final investments = state.investments;
-    
+
     if (investments.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -218,7 +241,8 @@ class InvestmentScreen extends ConsumerWidget {
     // Group by type
     final Map<String, double> allocation = {};
     for (final investment in investments) {
-      allocation[investment.type] = (allocation[investment.type] ?? 0) + investment.totalValue;
+      allocation[investment.type] =
+          (allocation[investment.type] ?? 0) + investment.totalValue;
     }
 
     return Container(
@@ -249,7 +273,8 @@ class InvestmentScreen extends ConsumerWidget {
             Center(
               child: Text(
                 'Chưa có dữ liệu',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             )
           else
@@ -260,7 +285,7 @@ class InvestmentScreen extends ConsumerWidget {
                   sections: allocation.entries.map((entry) {
                     final total = allocation.values.reduce((a, b) => a + b);
                     final percentage = (entry.value / total * 100);
-                    
+
                     return PieChartSectionData(
                       value: entry.value,
                       title: '${percentage.toStringAsFixed(1)}%',
@@ -313,7 +338,8 @@ class InvestmentScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildInvestmentList(BuildContext context, WidgetRef ref, InvestmentState state) {
+  Widget _buildInvestmentList(
+      BuildContext context, WidgetRef ref, InvestmentState state) {
     final investments = state.investments;
 
     return Container(
@@ -346,12 +372,14 @@ class InvestmentScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(20),
                 child: Text(
                   'Chưa có khoản đầu tư nào',
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               ),
             )
           else
-            ...investments.map((investment) => _buildInvestmentItem(context, ref, investment)),
+            ...investments.map(
+                (investment) => _buildInvestmentItem(context, ref, investment)),
         ],
       ),
     );
@@ -364,88 +392,113 @@ class InvestmentScreen extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: InkWell(
-        onTap: () {
-          _showInvestmentDetails(context, ref, investment);
-        },
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: _getAssetTypeColor(context, investment.type).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+      child: Slidable(
+        key: Key(investment.id.toString()),
+        endActionPane: ActionPane(
+          motion: const ScrollMotion(),
+          children: [
+            SlidableAction(
+              onPressed: (context) => _editInvestment(context, ref, investment),
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              icon: Icons.edit,
+              label: 'Sửa',
+            ),
+            SlidableAction(
+              onPressed: (context) =>
+                  _deleteInvestment(context, ref, investment),
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              icon: Icons.delete,
+              label: 'Xóa',
+            ),
+          ],
+        ),
+        child: InkWell(
+          onTap: () {
+            _showInvestmentDetails(context, ref, investment);
+          },
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              border: Border.all(
+                  color: Theme.of(context).colorScheme.surfaceContainerHigh),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: _getAssetTypeColor(context, investment.type)
+                        .withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    _getAssetTypeIcon(investment.type),
+                    color: _getAssetTypeColor(context, investment.type),
+                  ),
                 ),
-                child: Icon(
-                  _getAssetTypeIcon(investment.type),
-                  color: _getAssetTypeColor(context, investment.type),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        investment.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        '${investment.symbol} • ${_getAssetTypeName(investment.type)}',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 12,
+                        ),
+                      ),
+                      Text(
+                        '${investment.quantity.toStringAsFixed(2)} @ ${CurrencyFormatter.formatCompact(investment.currentPrice)}',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      investment.name,
+                      CurrencyFormatter.formatCompact(investment.totalValue),
                       style: const TextStyle(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
                     ),
                     Text(
-                      '${investment.symbol} • ${_getAssetTypeName(investment.type)}',
+                      '${roi >= 0 ? '+' : ''}${roi.toStringAsFixed(1)}%',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: roi >= 0 ? Colors.green : Colors.red,
                         fontSize: 12,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     Text(
-                      '${investment.quantity.toStringAsFixed(2)} @ ${CurrencyFormatter.formatCompact(investment.currentPrice)}',
+                      '${profitLoss >= 0 ? '+' : ''}${CurrencyFormatter.formatCompact(profitLoss)}',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: profitLoss >= 0 ? Colors.green : Colors.red,
                         fontSize: 11,
                       ),
                     ),
                   ],
                 ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    CurrencyFormatter.formatCompact(investment.totalValue),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  Text(
-                    '${roi >= 0 ? '+' : ''}${roi.toStringAsFixed(1)}%',
-                    style: TextStyle(
-                      color: roi >= 0 ? Colors.green : Colors.red,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    '${profitLoss >= 0 ? '+' : ''}${CurrencyFormatter.formatCompact(profitLoss)}',
-                    style: TextStyle(
-                      color: profitLoss >= 0 ? Colors.green : Colors.red,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -508,8 +561,55 @@ class InvestmentScreen extends ConsumerWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const AddInvestmentBottomSheet(),
+      builder: (context) => const AddEditInvestmentBottomSheet(),
     );
+  }
+
+  void _editInvestment(BuildContext context, WidgetRef ref, investment) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddEditInvestmentBottomSheet(
+        investment: investment,
+      ),
+    );
+  }
+
+  Future<void> _deleteInvestment(BuildContext context, WidgetRef ref, investment) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.delete_outline, size: 48, color: Colors.red),
+        title: const Text('Xác nhận xóa'),
+        content: Text('Bạn có chắc muốn xóa khoản đầu tư "${investment.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Hủy'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Xóa'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await ref.read(investmentProvider.notifier).deleteInvestment(investment.id);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Đã xóa khoản đầu tư'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    }
   }
 
   void _showInvestmentDetails(BuildContext context, WidgetRef ref, investment) {
@@ -529,7 +629,8 @@ class _InvestmentDetailsSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final transactionsAsync = ref.watch(investmentTransactionsProvider(investment.id));
+    final transactionsAsync =
+        ref.watch(investmentTransactionsProvider(investment.id));
 
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
@@ -547,7 +648,8 @@ class _InvestmentDetailsSheet extends ConsumerWidget {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceContainerLow,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(20)),
                 ),
                 child: Row(
                   children: [
@@ -565,7 +667,9 @@ class _InvestmentDetailsSheet extends ConsumerWidget {
                           Text(
                             investment.symbol,
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                               fontSize: 14,
                             ),
                           ),
@@ -607,7 +711,8 @@ class _InvestmentDetailsSheet extends ConsumerWidget {
                           }).toList(),
                         );
                       },
-                      loading: () => const Center(child: CircularProgressIndicator()),
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
                       error: (error, stack) => Center(
                         child: Text('Lỗi: $error'),
                       ),
@@ -638,26 +743,31 @@ class _InvestmentDetailsSheet extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildStatItem(context, 'Giá hiện tại', CurrencyFormatter.formatVND(investment.currentPrice)),
-              _buildStatItem(context, 'Số lượng', investment.quantity.toStringAsFixed(2)),
+              _buildStatItem(context, 'Giá hiện tại',
+                  CurrencyFormatter.formatVND(investment.currentPrice)),
+              _buildStatItem(
+                  context, 'Số lượng', investment.quantity.toStringAsFixed(2)),
             ],
           ),
           const Divider(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildStatItem(context, 'Tổng đầu tư', CurrencyFormatter.formatVND(investment.totalInvested)),
-              _buildStatItem(context, 'Giá trị hiện tại', CurrencyFormatter.formatVND(investment.totalValue)),
+              _buildStatItem(context, 'Tổng đầu tư',
+                  CurrencyFormatter.formatVND(investment.totalInvested)),
+              _buildStatItem(context, 'Giá trị hiện tại',
+                  CurrencyFormatter.formatVND(investment.totalValue)),
             ],
           ),
           const Divider(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildStatItem(context, 'Lợi nhuận', CurrencyFormatter.formatVND(profitLoss), 
-                color: profitLoss >= 0 ? Colors.green : Colors.red),
-              _buildStatItem(context, 'ROI', '${roi.toStringAsFixed(1)}%', 
-                color: roi >= 0 ? Colors.green : Colors.red),
+              _buildStatItem(
+                  context, 'Lợi nhuận', CurrencyFormatter.formatVND(profitLoss),
+                  color: profitLoss >= 0 ? Colors.green : Colors.red),
+              _buildStatItem(context, 'ROI', '${roi.toStringAsFixed(1)}%',
+                  color: roi >= 0 ? Colors.green : Colors.red),
             ],
           ),
         ],
@@ -665,7 +775,8 @@ class _InvestmentDetailsSheet extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatItem(BuildContext context, String label, String value, {Color? color}) {
+  Widget _buildStatItem(BuildContext context, String label, String value,
+      {Color? color}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -691,12 +802,13 @@ class _InvestmentDetailsSheet extends ConsumerWidget {
 
   Widget _buildTransactionItem(BuildContext context, transaction) {
     final isBuy = transaction.type == 'buy';
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.surfaceContainerHigh),
+        border: Border.all(
+            color: Theme.of(context).colorScheme.surfaceContainerHigh),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

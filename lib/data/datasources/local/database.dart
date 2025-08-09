@@ -149,6 +149,7 @@ class Investments extends Table {
   TextColumn get type => text()(); // stock, crypto, gold, bond, fund
   RealColumn get totalValue => real()(); // Tổng giá trị hiện tại
   RealColumn get totalInvested => real()(); // Tổng tiền đã đầu tư
+  RealColumn get purchasePrice => real().withDefault(const Constant(0.0))(); // Giá mua vào
   RealColumn get currentPrice => real()(); // Giá hiện tại
   RealColumn get quantity => real()(); // Số lượng sở hữu
   TextColumn get description => text().nullable()();
@@ -236,7 +237,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
   
   @override
-  int get schemaVersion => 5; // Add avatarUrl to users table
+  int get schemaVersion => 6; // Add purchase_price to investments table
   
   @override
   MigrationStrategy get migration {
@@ -268,6 +269,17 @@ class AppDatabase extends _$AppDatabase {
         if (from < 5) {
           // Migration từ version 4 lên 5 - thêm avatarUrl cho users
           await m.addColumn(users, users.avatarUrl);
+        }
+        if (from < 6) {
+          // Migration từ version 5 lên 6 - thêm purchase_price cho investments
+          try {
+            await m.addColumn(investments, investments.purchasePrice);
+            // Set default value for existing records
+            await customStatement('UPDATE investments SET purchase_price = current_price WHERE purchase_price IS NULL');
+          } catch (e) {
+            // Column might already exist, ignore error
+            print('Migration warning: $e');
+          }
         }
       },
     );

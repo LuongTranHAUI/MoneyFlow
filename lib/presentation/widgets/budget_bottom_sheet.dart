@@ -1,3 +1,4 @@
+import 'package:finance_tracker/core/utils/currency_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -171,7 +172,10 @@ class _EditBudgetBottomSheetState extends ConsumerState<EditBudgetBottomSheet> {
   void initState() {
     super.initState();
     _categoryController = TextEditingController(text: widget.budget.category);
-    _amountController = TextEditingController(text: widget.budget.budgetAmount.toStringAsFixed(0));
+    // Format the amount with thousand separators when initializing
+    _amountController = TextEditingController(
+      text: CurrencyFormatter.addThousandsSeparator(widget.budget.budgetAmount.toStringAsFixed(0))
+    );
     _selectedIcon = widget.budget.icon;
     _selectedColor = Color(widget.budget.color);
   }

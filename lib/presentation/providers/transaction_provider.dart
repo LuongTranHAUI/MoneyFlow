@@ -104,13 +104,14 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     }
   }
   
-  Future<void> updateTransaction(Transaction transaction) async {
+  Future<void> updateTransaction(int id, Transaction transaction) async {
     try {
-      final companion = TransactionModel.toCompanion(transaction);
+      final updatedTransaction = transaction.copyWith(id: id);
+      final companion = TransactionModel.toCompanion(updatedTransaction);
       await _database.updateTransaction(companion);
       
       final updatedList = state.transactions.map((t) {
-        return t.id == transaction.id ? transaction : t;
+        return t.id == id ? updatedTransaction : t;
       }).toList();
       updatedList.sort((a, b) => b.date.compareTo(a.date));
       

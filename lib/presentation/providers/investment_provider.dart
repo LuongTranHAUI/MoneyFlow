@@ -2,6 +2,29 @@ import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:finance_tracker/data/datasources/local/database.dart';
 
+// Simple Investment model for updating
+class Investment {
+  final int? id;
+  final String name;
+  final String symbol;
+  final String type;
+  final double purchasePrice;
+  final double currentPrice;
+  final double quantity;
+  final String? description;
+
+  Investment({
+    this.id,
+    required this.name,
+    required this.symbol,
+    required this.type,
+    required this.purchasePrice,
+    required this.currentPrice,
+    required this.quantity,
+    this.description,
+  });
+}
+
 // Investment State
 class InvestmentState {
   final List<InvestmentEntity> investments;
@@ -65,37 +88,60 @@ class InvestmentNotifier extends StateNotifier<InvestmentState> {
     required String symbol,
     required String type,
     required double initialPrice,
+    double? currentPrice,
     required double quantity,
     String? description,
   }) async {
     try {
       final totalInvested = initialPrice * quantity;
+      final currentPriceValue = currentPrice ?? initialPrice;
+      final totalValue = currentPriceValue * quantity;
       
       final investment = InvestmentsCompanion.insert(
         name: name,
         symbol: symbol,
         type: type,
-        totalValue: totalInvested, // Initially same as invested
+        totalValue: totalValue,
         totalInvested: totalInvested,
-        currentPrice: initialPrice,
+        purchasePrice: Value(initialPrice),
+        currentPrice: currentPriceValue,
         quantity: quantity,
         description: description != null ? Value(description) : const Value.absent(),
       );
 
       await _database.into(_database.investments).insert(investment);
-      
-      // Add initial transaction
-      await addInvestmentTransaction(
-        investmentId: 0, // Will be updated after getting the actual ID
-        type: 'buy',
-        quantity: quantity,
-        price: initialPrice,
-        fee: 0,
-      );
-      
       await loadInvestments();
     } catch (e) {
       state = state.copyWith(error: 'Lỗi khi thêm đầu tư: $e');
+    }
+  }
+
+  // Update investment
+  Future<void> updateInvestment(int id, Investment investment) async {
+    try {
+      final totalValue = investment.currentPrice * investment.quantity;
+      final totalInvested = investment.purchasePrice * investment.quantity;
+      
+      await (_database.update(_database.investments)
+            ..where((i) => i.id.equals(id)))
+          .write(InvestmentsCompanion(
+            name: Value(investment.name),
+            symbol: Value(investment.symbol),
+            type: Value(investment.type),
+            totalValue: Value(totalValue),
+            totalInvested: Value(totalInvested),
+            purchasePrice: Value(investment.purchasePrice),
+            currentPrice: Value(investment.currentPrice),
+            quantity: Value(investment.quantity),
+            description: investment.description != null 
+                ? Value(investment.description!) 
+                : const Value.absent(),
+            updatedAt: Value(DateTime.now()),
+          ));
+      
+      await loadInvestments();
+    } catch (e) {
+      state = state.copyWith(error: 'Lỗi khi cập nhật đầu tư: $e');
     }
   }
 
@@ -237,8 +283,12 @@ class InvestmentNotifier extends StateNotifier<InvestmentState> {
 
   // Calculate ROI for investment
   double calculateROI(InvestmentEntity investment) {
-    if (investment.totalInvested <= 0) return 0.0;
-    return ((investment.totalValue - investment.totalInvested) / investment.totalInvested) * 100;
+    // Calculate based on purchase price and current price
+    if (investment.purchasePrice <= 0) return 0.0;
+    final profit = (investment.currentPrice - investment.purchasePrice) * investment.quantity;
+    final invested = investment.purchasePrice * investment.quantity;
+    if (invested <= 0) return 0.0;
+    return (profit / invested) * 100;
   }
 
   // Calculate total portfolio value

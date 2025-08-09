@@ -589,7 +589,10 @@ class DashboardScreen extends ConsumerWidget {
               ),
               TextButton(
                 onPressed: () {
-                  ref.read(currentIndexProvider.notifier).state = 3;
+                  // Set planning tab to Goals (index 1)
+                  ref.read(planningTabIndexProvider.notifier).state = 1;
+                  // Navigate to Planning screen (index 2)
+                  ref.read(currentIndexProvider.notifier).state = 2;
                 },
                 child: const Text('Xem tất cả'),
               ),
