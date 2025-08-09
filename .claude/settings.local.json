@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter pub:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(dart analyze:*)",
+      "Bash(flutter clean:*)",
+      "Bash(flutter run:*)",
+      "Bash(flutter doctor:*)",
+      "Bash(flutter build:*)",
+      "Bash(flutter packages pub run build_runner build:*)",
+      "Bash(rm:*)",
+      "Bash(copy pubspec_minimal.yaml pubspec.yaml)",
+      "Bash(cp:*)",
+      "Bash(dart compile kernel:*)",
+      "Bash(dart run:*)",
+      "Bash(del \"lib\\presentation\\screens\\finance_screen.dart\")",
+      "Bash(del \"lib\\presentation\\screens\\goals_investments_screen.dart\")",
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(flutter packages pub run:*)",
+      "Bash(touch:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}
